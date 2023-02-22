@@ -18,6 +18,7 @@ defmodule Romeo.RosterTest do
     setup_presence_subscriptions(romeo[:nickname], mercutio[:nickname])
 
     {:ok, pid} = Romeo.Connection.start_link(romeo)
+    assert_receive :connection_ready
     {:ok, romeo: romeo, juliet: juliet, mercutio: mercutio, benvolio: benvolio, pid: pid}
   end
 
