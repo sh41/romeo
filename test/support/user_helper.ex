@@ -1,11 +1,4 @@
-defmodule UserHelper do
-  defmacro __using__(_) do
-    quote do
-      import UserHelper
-      import ExUnit.CaptureLog
-    end
-  end
-
+defmodule Romeo.Test.Support.UserHelper do
   def build_user(username, opts \\ []) do
     {password, opts} = Keyword.pop(opts, :password, "password")
     {resource, opts} = Keyword.pop(opts, :resource, "romeo")

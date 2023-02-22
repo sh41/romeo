@@ -1,7 +1,7 @@
 defmodule Romeo.RosterTest do
   use ExUnit.Case
 
-  use UserHelper
+  import Romeo.Test.Support.UserHelper
   use Romeo.XML
 
   import Romeo.Roster
@@ -22,14 +22,19 @@ defmodule Romeo.RosterTest do
   end
 
   test "getting, adding, removing roster items", %{benvolio: benvolio, mercutio: mercutio, pid: pid} do
-    assert [%Item{name: "juliet"}, %Item{name: "mercutio"}] = items(pid)
+    assert [%Item{name: "juliet"}, %Item{name: "mercutio"}] = items(pid) |> Enum.sort_by(& &1.name)
 
     b_jid = benvolio[:jid]
     assert :ok = add(pid, b_jid)
-    assert [%Item{name: "juliet"}, %Item{name: "mercutio"}, %Item{name: "benvolio"}] = items(pid)
+
+    assert [
+             %Item{name: "benvolio"},
+             %Item{name: "juliet"},
+             %Item{name: "mercutio"}
+           ] = items(pid) |> Enum.sort_by(& &1.name)
 
     m_jid = mercutio[:jid]
     assert :ok = remove(pid, m_jid)
-    assert [%Item{name: "juliet"}, %Item{name: "benvolio"}] = items(pid)
+    assert [%Item{name: "benvolio"}, %Item{name: "juliet"}] = items(pid) |> Enum.sort_by(& &1.name)
   end
 end

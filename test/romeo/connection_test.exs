@@ -1,7 +1,7 @@
 defmodule Romeo.ConnectionTest do
   use ExUnit.Case
 
-  use UserHelper
+  import Romeo.Test.Support.UserHelper
   use Romeo.XML
 
   setup do
@@ -40,8 +40,7 @@ defmodule Romeo.ConnectionTest do
     assert to_string(to) == "romeo@localhost/romeo"
 
     assert :ok = Romeo.Connection.send(pid, Romeo.Stanza.join("lobby@conference.localhost", "romeo"))
-    assert_receive {:stanza, %Presence{from: from} = presence}
-    assert to_string(from) == "lobby@conference.localhost/romeo"
+    assert_receive {:stanza, %Presence{from: %Romeo.JID{full: "lobby@conference.localhost/romeo"}} = _presence}
   end
 
   test "resource conflict", %{romeo: romeo} do
