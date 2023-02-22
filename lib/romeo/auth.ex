@@ -52,11 +52,11 @@ defmodule Romeo.Auth do
     {:ok, conn} =
       case mechanism do
         {name, mod} ->
-          Logger.info(fn -> "Authenticating with extension #{name} implemented by #{mod}" end)
+          Logger.debug(fn -> "Authenticating with extension #{name} implemented by #{mod}" end)
           mod.authenticate(name, conn)
 
         _ ->
-          Logger.info(fn -> "Authenticating with #{mechanism}" end)
+          Logger.debug(fn -> "Authenticating with #{mechanism}" end)
           authenticate_with(mechanism, conn)
       end
 
@@ -91,7 +91,7 @@ defmodule Romeo.Auth do
     mod.recv(conn, fn conn, xmlel(name: name) ->
       case name do
         "success" ->
-          Logger.info(fn -> "Authenticated successfully" end)
+          Logger.debug(fn -> "Authenticated successfully" end)
           {:ok, conn}
 
         "failure" ->

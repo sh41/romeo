@@ -13,7 +13,7 @@ defmodule Romeo.Roster do
   Returns roster items
   """
   def items(pid) do
-    Logger.info(fn -> "Getting roster items" end)
+    Logger.debug(fn -> "Getting roster items" end)
     stanza = Stanza.get_roster()
 
     case send_stanza(pid, stanza) do
@@ -26,7 +26,7 @@ defmodule Romeo.Roster do
   Adds jid to roster
   """
   def add(pid, jid) do
-    Logger.info(fn -> "Adding #{jid} to roster items" end)
+    Logger.debug(fn -> "Adding #{jid} to roster items" end)
     stanza = Stanza.set_roster_item(jid)
 
     case send_stanza(pid, stanza) do
@@ -36,7 +36,7 @@ defmodule Romeo.Roster do
   end
 
   def add(pid, jid, name) do
-    Logger.info(fn -> "Adding #{jid} to roster items" end)
+    Logger.debug(fn -> "Adding #{jid} to roster items" end)
     stanza = Stanza.set_roster_item(jid, "both", name)
 
     case send_stanza(pid, stanza) do
@@ -46,7 +46,7 @@ defmodule Romeo.Roster do
   end
 
   def add_roster_item(pid, jid, subscription \\ "both", name \\ "", group \\ "") do
-    Logger.info(fn -> "Adding #{jid} to roster items" end)
+    Logger.debug(fn -> "Adding #{jid} to roster items" end)
     stanza = Stanza.set_roster_item(jid, subscription, name, group)
 
     case send_stanza(pid, stanza) do
@@ -59,7 +59,7 @@ defmodule Romeo.Roster do
   Removes jid to roster
   """
   def remove(pid, jid) do
-    Logger.info(fn -> "Removing #{jid} from roster items" end)
+    Logger.debug(fn -> "Removing #{jid} from roster items" end)
     stanza = Stanza.set_roster_item(jid, "remove")
 
     case send_stanza(pid, stanza) do
