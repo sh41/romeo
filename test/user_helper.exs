@@ -1,5 +1,4 @@
 defmodule UserHelper do
-
   defmacro __using__(_) do
     quote do
       import UserHelper
@@ -14,11 +13,13 @@ defmodule UserHelper do
 
     register_user(username, password)
 
-    [jid: username <> "@localhost",
-     password: password,
-     resource: resource,
-     nickname: username,
-     port: (if tls, do: 52225, else: 52222)]
+    [
+      jid: username <> "@localhost",
+      password: password,
+      resource: resource,
+      nickname: username,
+      port: if(tls, do: 52225, else: 52222)
+    ]
   end
 
   def register_user(username, password \\ "password") do

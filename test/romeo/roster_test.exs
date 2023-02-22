@@ -9,7 +9,7 @@ defmodule Romeo.RosterTest do
   alias Romeo.Roster.Item
 
   setup do
-    romeo  = build_user("romeo", tls: true)
+    romeo = build_user("romeo", tls: true)
     juliet = build_user("juliet", resource: "juliet", tls: true)
     mercutio = build_user("mercutio", resource: "mercutio", tls: true)
     benvolio = build_user("benvolio", resource: "benvolio", tls: true)
