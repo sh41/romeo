@@ -21,7 +21,10 @@ defmodule Romeo.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :connection, :fast_xml] ++ maybe_load_test_applications(Mix.env()), mod: {Romeo, []}]
+    [
+      applications: [:logger, :connection, :fast_xml, :ssl, :eex] ++ maybe_load_test_applications(Mix.env()),
+      mod: {Romeo, []}
+    ]
   end
 
   defp description do
@@ -63,7 +66,6 @@ defmodule Romeo.Mixfile do
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
-  defp maybe_load_test_applications(:dev), do: [:eex]
-  defp maybe_load_test_applications(:test), do: [:ejabberd, :eex]
+  defp maybe_load_test_applications(:test), do: [:ejabberd]
   defp maybe_load_test_applications(_), do: []
 end
