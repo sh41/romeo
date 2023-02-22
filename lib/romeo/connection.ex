@@ -64,8 +64,8 @@ defmodule Romeo.Connection do
   @doc """
   Send a message via the underlying transport.
   """
-  def send(pid, data) do
-    Connection.call(pid, {:send, data})
+  def send(pid, data, opts \\ []) do
+    Connection.call(pid, {:send, data}, opts[:timeout] || @timeout)
   end
 
   @doc """
