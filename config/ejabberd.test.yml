@@ -20,7 +20,7 @@ hosts:
 loglevel: info
 
 certfiles:
-  - "<%= cwd %>/priv/ssl/ejabberd.pem"
+  - "./priv/ssl/ejabberd.pem"
 
 listen:
   -

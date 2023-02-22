@@ -1,14 +1,15 @@
 defmodule Romeo.Mixfile do
   use Mix.Project
 
-  @version "0.7.0"
+  @version "1.0.0"
 
   def project do
     [
       app: :romeo,
       name: "Romeo",
       version: @version,
-      elixir: "~> 1.1",
+      elixir: "~> 1.11",
+      elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       description: description(),
@@ -20,7 +21,7 @@ defmodule Romeo.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :connection, :fast_xml], mod: {Romeo, []}]
+    [applications: [:logger, :connection, :fast_xml] ++ maybe_load_test_applications(Mix.env()), mod: {Romeo, []}]
   end
 
   defp description do
@@ -36,7 +37,7 @@ defmodule Romeo.Mixfile do
       {:ex_doc, "~> 0.18", only: :dev},
 
       # Test deps
-      {:ejabberd, github: "scrogson/ejabberd", branch: "fix_mix_compile", only: :test},
+      {:ejabberd, "~> 21.7", only: :test},
       {:mock, "~> 0.3.1", only: :test},
       {:excoveralls, "~> 0.8", only: :test}
     ]
@@ -58,4 +59,11 @@ defmodule Romeo.Mixfile do
       links: %{"GitHub" => "https://github.com/scrogson/romeo"}
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
+
+  defp maybe_load_test_applications(:dev), do: [:eex]
+  defp maybe_load_test_applications(:test), do: [:ejabberd, :eex]
+  defp maybe_load_test_applications(_), do: []
 end
