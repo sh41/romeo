@@ -81,11 +81,15 @@ defmodule Romeo.Transports.TCP do
     end)
   end
 
+  defp negotiate_features({:error, _} = error), do: error
+
   defp negotiate_features(%Conn{} = conn) do
     recv(conn, fn conn, xmlel(name: "stream:features") = packet ->
       %{conn | features: Features.parse_stream_features(packet)}
     end)
   end
+
+  defp maybe_start_tls({:error, _} = error), do: error
 
   defp maybe_start_tls(%Conn{features: %Features{tls?: true}} = conn) do
     conn
@@ -98,6 +102,8 @@ defmodule Romeo.Transports.TCP do
 
   defp maybe_start_tls(%Conn{} = conn), do: conn
 
+  defp upgrade_to_tls({:error, _} = error), do: error
+
   defp upgrade_to_tls(%Conn{parser: parser, socket: {:gen_tcp, socket}} = conn) do
     Logger.info(fn -> "Negotiating secure connection" end)
 
@@ -108,6 +114,8 @@ defmodule Romeo.Transports.TCP do
     %{conn | socket: {:ssl, socket}, parser: parser}
   end
 
+  defp authenticate({:error, _} = error), do: error
+
   defp authenticate(%Conn{} = conn) do
     conn
     |> Romeo.Auth.authenticate!()
@@ -116,9 +124,13 @@ defmodule Romeo.Transports.TCP do
     |> negotiate_features
   end
 
+  defp handshake({:error, _} = error), do: error
+
   defp handshake(%Conn{} = conn) do
     Romeo.Auth.handshake!(conn)
   end
+
+  defp bind({:error, _} = error), do: error
 
   defp bind(%Conn{owner: owner, resource: resource} = conn) do
     stanza = Romeo.Stanza.bind(resource)
@@ -143,6 +155,8 @@ defmodule Romeo.Transports.TCP do
     end)
   end
 
+  defp session({:error, _} = error), do: error
+
   defp session(%Conn{} = conn) do
     stanza = Romeo.Stanza.session()
     id = Romeo.XML.attr(stanza, "id")
@@ -158,10 +172,14 @@ defmodule Romeo.Transports.TCP do
     end)
   end
 
+  defp ready({:error, _} = error), do: error
+
   defp ready(%Conn{owner: owner} = conn) do
     Kernel.send(owner, :connection_ready)
     {:ok, conn}
   end
+
+  defp reset_parser({:error, _} = error), do: error
 
   defp reset_parser(%Conn{parser: parser} = conn) do
     parser = :fxml_stream.reset(parser)
@@ -199,11 +217,15 @@ defmodule Romeo.Transports.TCP do
   def send(%Conn{jid: jid, socket: {mod, socket}} = conn, stanza) do
     stanza = Romeo.XML.encode!(stanza)
     Logger.debug(fn -> "[#{jid}][OUTGOING] #{inspect(stanza)}" end)
-    :ok = mod.send(socket, stanza)
-    {:ok, conn}
+
+    case mod.send(socket, stanza) do
+      :ok -> {:ok, conn}
+      {:error, _} = error -> error
+    end
   end
 
   def recv({:ok, conn}, fun), do: recv(conn, fun)
+  def recv({:error, _} = error, _fun), do: error
 
   def recv(%Conn{socket: {:gen_tcp, socket}, timeout: timeout} = conn, fun) do
     receive do

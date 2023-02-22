@@ -37,6 +37,7 @@ defmodule Romeo.Mixfile do
 
       # Test deps
       {:ejabberd, github: "scrogson/ejabberd", branch: "fix_mix_compile", only: :test},
+      {:mock, "~> 0.3.1", only: :test},
       {:excoveralls, "~> 0.8", only: :test}
     ]
   end
