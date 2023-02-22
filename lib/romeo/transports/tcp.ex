@@ -84,9 +84,23 @@ defmodule Romeo.Transports.TCP do
   defp negotiate_features({:error, _} = error), do: error
 
   defp negotiate_features(%Conn{} = conn) do
-    recv(conn, fn conn, xmlel(name: "stream:features") = packet ->
-      %{conn | features: Features.parse_stream_features(packet)}
+    recv(conn, fn
+      conn, xmlel(name: "stream:features") = packet ->
+        %{conn | features: Features.parse_stream_features(packet)}
+
+      conn, packet ->
+        log_errors(conn, packet)
     end)
+  end
+
+  defp log_errors(conn, xmlel(name: "stream:error", children: [xmlel(name: error) | _]) = packet) do
+    Logger.error("Error during connection of #{conn.jid} to #{conn.host}. #{inspect(error)}. #{inspect(packet)}")
+    {:error, "#{error}"}
+  end
+
+  defp log_errors(conn, packet) do
+    Logger.error("Error during connection of #{conn.jid} to #{conn.host}. Unexpected packet. #{inspect(packet)}")
+    {:error, "Unexpected packet: #{inspect(packet)}"}
   end
 
   defp maybe_start_tls({:error, _} = error), do: error
@@ -247,8 +261,13 @@ defmodule Romeo.Transports.TCP do
 
       {:tcp_error, ^socket, reason} ->
         {:error, reason}
+
+      other ->
+        Logger.warn("Unexpected message. Did you wait for :connection_ready? #{inspect(other)}")
+        {:error, :unexpected}
     after
       timeout ->
+        Logger.error("Timeout after #{inspect(timeout)}")
         Kernel.send(self(), {:error, :timeout})
         conn
     end
